@@ -122,7 +122,7 @@ class ModulesEosSolutionController extends \App\Http\Controllers\Controller
             $ext = $file->getClientOriginalExtension();
             $path = 'cover-image'.time().'.'.$ext;
 
-            $storage = Storage::disk($disk)->putFileAs('solution/image',$file,$path);
+            $storage = Storage::disk($disk)->putFileAs('portal/images',$file,$path);
             $value = Storage::disk('s3')->url($storage);
             $input['cover_image'] = $value;
         }
@@ -213,7 +213,7 @@ class ModulesEosSolutionController extends \App\Http\Controllers\Controller
             $ext = $file->getClientOriginalExtension();
             $path = 'cover-image'.time().'.'.$ext;
 
-            $storage = Storage::disk($disk)->putFileAs('solution/image',$file,$path);
+            $storage = Storage::disk($disk)->putFileAs('portal/images',$file,$path);
             $value = Storage::disk('s3')->url($storage);
             $input['cover_image'] = $value;
         }
@@ -224,7 +224,7 @@ class ModulesEosSolutionController extends \App\Http\Controllers\Controller
             $ext = $file->getClientOriginalExtension();
             $path = 'FRD'.time().'.'.$ext;
 
-            $storage = Storage::disk($disk)->putFileAs('solution/frd',$file,$path);
+            $storage = Storage::disk($disk)->putFileAs('portal/frds',$file,$path);
             $value = Storage::disk('s3')->url($storage);
             $input['frd'] = $value;
         }
