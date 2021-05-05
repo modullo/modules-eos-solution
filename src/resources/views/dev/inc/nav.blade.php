@@ -16,6 +16,9 @@
                     <a class="nav-link active" aria-current="page" href="#">Performance</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" target="_blank" href="https://docs.ekoopensource.com">Documentation</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="/developer/my-solution">My Solutions</a>
                 </li>
             </ul>
