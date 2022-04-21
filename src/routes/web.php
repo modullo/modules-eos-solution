@@ -7,7 +7,7 @@ use Modullo\ModulesEosSolution\Http\Controllers\ModulesEosSolutionController;
 Route::group(['namespace' => 'Modullo\ModulesEosSolution\Http\Controllers', 'middleware' => ['web']], static function() {
 
     Route::group(['prefix' => 'developer','middleware' => ['auth','developer']],function() {
-        Route::get('dashboard','ModulesEosSolutionController@index')->name('dev-dashboard');
+        Route::get('dashboard','ModulesEosSolutionController@index')->name('developer-dashboard');
         Route::get('projects/{slug}','ModulesEosSolutionController@showProject');
         Route::post('submit-solution','ModulesEosSolutionController@submitSolution')->name('submit.soln');
         Route::post('indicate-interest','ModulesEosSolutionController@interest')->name('interest');
@@ -16,7 +16,7 @@ Route::group(['namespace' => 'Modullo\ModulesEosSolution\Http\Controllers', 'mid
     });
 
     Route::group(['prefix' => 'admin','middleware' => ['auth','admin']],function() {
-        Route::get('dashboard','ModulesEosSolutionController@admin')->name('admin');
+        Route::get('dashboard','ModulesEosSolutionController@admin')->name('admin-dashboard');
         Route::group(['prefix' => 'solution'], function () {
             Route::get('','ModulesEosSolutionController@solution');
             Route::get('create','ModulesEosSolutionController@createSolution');
