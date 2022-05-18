@@ -60,11 +60,15 @@
                                             @endif
                                         </a>
                                         <a class="dropdown-item" href="/admin/solution/edit/{{ $solution->id }}">Edit</a>
-                                        <a class="dropdown-item" href="#">Delete</a>
+                                        <a class="dropdown-item" onclick="deleteFunc()">Delete</a>
                                     </div>
                                     <form action="/admin/solution/publish-solution/{{ $solution->id }}" method="POST" id="published-{{ $solution->id }}" class="d-none">
                                         @csrf
                                         @method('PUT')
+                                    </form>
+                                    <form action="{{ url('admin/solution/destroy/'.$solution->id) }}" id="delete-form" method="POST">
+                                        @method('DELETE')
+                                        @csrf
                                     </form>
                                 </div>
                             </td>
@@ -82,5 +86,11 @@
 
 @endsection
 @section('body_js')
+
+<script>
+    function deleteFunc() {
+        document.getElementById("delete-form").submit();
+    }
+</script>
 
 @endsection

@@ -37,17 +37,24 @@
             </div>
         </div>
         <div class="col-lg-7 col-md-8 col-sm-6">
+            @if(Session::get('message'))
+                <div class="alert alert-success" role="alert">
+                    {{ Session::get('message') }}
+                </div>
+            @endif
            <div class="card p-4">
                <h5 class="mb-5">Edit Profile</h5>
-               <form action="">
+               <form action="{{url('developer/update-profile/'.auth()->user()->id)}}" method="POST">
+                   @csrf
+                   @method('PUT')
                    <div class="row mb-5">
                        <div class="col-6">
                            <label for="">First name</label>
-                           <input type="text" value="{{ Auth::user()->first_name }}" name="" id="" class="form-control">
+                           <input type="text" value="{{ Auth::user()->first_name }}" name="first_name" id="" class="form-control">
                        </div>
                        <div class="col-6">
                            <label for="">Last name</label>
-                           <input type="text" value="{{ Auth::user()->last_name }}" name="" id="" class="form-control">
+                           <input type="text" value="{{ Auth::user()->last_name }}" name="last_name" id="" class="form-control">
                        </div>
                    </div>
 
@@ -56,7 +63,7 @@
                            <div class="">
                                <label class="form-label">Email address
                                </label>
-                               <input class="form-control" type="email" value="{{ Auth::user()->email }}" name="email" value="{{ old('email') }}" placeholder="Email">
+                               <input class="form-control" type="email" value="{{ Auth::user()->email }}" name="email" value="{{ old('email') }}" placeholder="Email" readonly>
                                <div class="text-danger">@error('email') {{ $message }} @enderror</div>
                            </div>
                        </div>
@@ -82,7 +89,7 @@
                    </div>
 
 
-                   <button type="button" disabled class="btn btn-outline-success btn-block">
+                   <button type="submit"  class="btn btn-outline-success btn-block">
                        Update
                    </button>
                </form>

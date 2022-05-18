@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Modullo\ModulesEosSolution\Models\SolutionSubmission;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
+use Hash;
 
 class ModulesEosSolutionController extends \App\Http\Controllers\Controller
 {
@@ -26,6 +27,7 @@ class ModulesEosSolutionController extends \App\Http\Controllers\Controller
     public function index(){
         $company_logo = $this->data['company_logo'];
         $solutions = Solution::where('published',1)->get();
+      
         return view('modules-eos-solution::home',compact('company_logo','solutions'));
     }
 
@@ -53,6 +55,31 @@ class ModulesEosSolutionController extends \App\Http\Controllers\Controller
     public function profile(){
         $company_logo = $this->data['company_logo'];
         return view('modules-eos-solution::dev.profile',compact('company_logo'));
+    }
+
+    public function updateProfile(Request $request , $user_id)
+    {
+        $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'password' => 'sometimes',
+            'phone_number' => 'required'
+        ]);
+        $user = User::where('id',$user_id)->first();
+        $user->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'phone_number' => $request->phone_number,
+        ]);
+
+        if(!is_null($request->password))
+        {
+            $user->update([
+                'password' => Hash::make($request->password)
+            ]);
+        }
+
+        return back()->with(['message' => 'Profile Successfully updated']);
     }
 
     public function mySolution(){
@@ -93,7 +120,6 @@ class ModulesEosSolutionController extends \App\Http\Controllers\Controller
     }
 
     public function editSolution($id){
-
         $cycles = SolutionCycle::all();
         $solution = Solution::findOrFail($id);
         return view('modules-eos-solution::admin.solutions.edit',$this->data)->with(['cycles' => $cycles,'solution' => $solution]);
@@ -109,20 +135,23 @@ class ModulesEosSolutionController extends \App\Http\Controllers\Controller
             'description' => 'required',
             'what_you_need_to_build' => 'required',
             'solicitation_type' => 'required',
-            'cover_image' => 'required',
+//            'cover_image' => 'required',
+            'image_url' => 'required',
             'frd_date' => 'required',
             'submission_deadline' => 'required',
             'solution_cycle_id' => 'required',
         ]);
         $input = $request->all();
 
-        if($request->hasFile('cover_image')){
-            $file = $request->file('cover_image');
+        if($request->hasFile('image_url')){
+            $file = $request->file('image_url');
             $disk = 's3';
             $ext = $file->getClientOriginalExtension();
             $path = 'cover-image'.time().'.'.$ext;
 
             $storage = Storage::disk($disk)->putFileAs('portal/images',$file,$path);
+
+            Storage::disk('s3')->setVisibility($storage, 'public');
             $value = Storage::disk('s3')->url($storage);
             $input['cover_image'] = $value;
         }
@@ -207,15 +236,23 @@ class ModulesEosSolutionController extends \App\Http\Controllers\Controller
         $id = $input['id'];
         $solution = Solution::findOrFail($id);
 
-        if($request->hasFile('cover_image')){
-            $file = $request->file('cover_image');
+        if($request->hasFile('image_url')){
+//            'cover_image'
+            $file = $request->file('image_url');
             $disk = 's3';
             $ext = $file->getClientOriginalExtension();
             $path = 'cover-image'.time().'.'.$ext;
 
+
+
             $storage = Storage::disk($disk)->putFileAs('portal/images',$file,$path);
+
             $value = Storage::disk('s3')->url($storage);
-            $input['cover_image'] = $value;
+
+            //set visibility for storage
+            Storage::disk('s3')->setVisibility($storage, 'public');
+
+            $input['image_url'] = $value;
         }
 
         if($request->hasFile('frd')){
@@ -225,6 +262,8 @@ class ModulesEosSolutionController extends \App\Http\Controllers\Controller
             $path = 'FRD'.time().'.'.$ext;
 
             $storage = Storage::disk($disk)->putFileAs('portal/frds',$file,$path);
+            //set visibility for storage for frd
+            Storage::disk('s3')->setVisibility($storage, 'public');
             $value = Storage::disk('s3')->url($storage);
             $input['frd'] = $value;
         }
@@ -248,6 +287,71 @@ class ModulesEosSolutionController extends \App\Http\Controllers\Controller
             return back()->with(['deactivate' => 'Solution Successfully deactivated']);
         }
 
+    }
+
+    public function updateDeveloper(Request $request)
+    {
+        $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'user_id' => 'required'
+        ]);
+
+        $updateUser = User::where('uuid', $request->user_id)->firstorfail();
+
+        $updateUser->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name
+        ]);
+
+        return response()->json(['success' => true , 'message' => 'User updated successfully']);
+    }
+
+    public function destroyDeveloper($user_id)
+    {
+        $user = User::where('id', $user_id)->first();
+        $user->delete;
+        return back()->with(['message' => 'Developer deleted successfully']);
+    }
+
+    public function viewCylces()
+    {
+        $cycles = SolutionCycle::all();
+
+        return view('modules-eos-solution::admin.solutions.all-cycles',$this->data)->with(['cycles' => $cycles]);
+    }
+
+    public function updateSolutionCycle(Request $request)
+    {
+       
+          $solutionCycle =  SolutionCycle::where(['id'=> $request->cycle_uuid])->first();
+
+          $solutionCycle->update([
+              'name' => $request->name,
+              'start_date' => $request->start_date,
+              'end_date' => $request->end_date
+          ]);
+
+        return response()->json(['success' => true , 'message' => 'Cycle updated successfully']);
+    }
+
+
+    public function deleteSolutionCycle($cycle_id)
+    {
+        $solutionCycle =  SolutionCycle::where(['id'=> $cycle_id])->first();
+
+        $solutionCycle->delete();
+
+        return back()->with(['message' => 'Solution Cycle deleted successfully']);
+    }
+
+    public function deleteSolution($solution_id)
+    {
+        $solution =  Solution::where(['id'=> $solution_id])->first();
+
+        $solution->delete();
+
+        return back()->with(['message' => 'Solution deleted successfully']);
     }
 
 }
