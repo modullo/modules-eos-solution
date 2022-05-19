@@ -66,7 +66,8 @@
                                 </div>
                                 <div class="mb-4">
                                     <label for="">Cover image</label>
-                                    <input type="file" name="cover_image" class="form-control">
+                                    <input type="file" name="image_url" class="form-control">
+{{--                                    <input type="file" name="cover_image" class="form-control">--}}
                                     @error('cover_image')
                                     <small class="text-danger" role="alert">
                                         {{ $message }}

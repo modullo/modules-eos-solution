@@ -14,12 +14,15 @@
     @include('modules-eos-solution::admin.inc.nav',['name' => 'Admin'])
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-end align-items-center">
-            <a href="#" class="btn btn-outline-secondary mr-3">
+            <a href="{{url('admin/dashboard')}}" class="btn btn-outline-secondary mr-3">
                 User Management
             </a>
-            <a href="#" class="btn btn-outline-secondary">
-                Solution Management
+            <a href="{{url('admin/solution/cycles')}}" class="btn btn-outline-secondary mr-3">
+                View Cycles
             </a>
+            {{--  <a href="{{url('admin/solution')}}" class="btn btn-outline-secondary">
+                Solution Management
+            </a>  --}}
         </div>
     </div>
     <div class="row">
